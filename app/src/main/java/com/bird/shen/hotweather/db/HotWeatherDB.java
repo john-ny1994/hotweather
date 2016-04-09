@@ -19,11 +19,11 @@ public class HotWeatherDB {
 
           // define a name of database
 
-          private  static  final  String DB_NAME = "hot_weather";
+          public   static  final  String DB_NAME = "hot_weather";
 
           // the version of database
 
-          private  static  final  int  version = 1 ;
+          public   static  final  int  VERSION = 1 ;
 
           private  static  HotWeatherDB  hotWeatherDB ;
 
@@ -33,7 +33,7 @@ public class HotWeatherDB {
 
           private HotWeatherDB(Context context) {
 
-                    HotWeatherOpenHelper dbHelper = new HotWeatherOpenHelper(context,DB_NAME,null,version);
+                    HotWeatherOpenHelper dbHelper = new HotWeatherOpenHelper(context,DB_NAME,null,VERSION);
 
                     db = dbHelper.getWritableDatabase();  // Write tables to database.
 
@@ -107,6 +107,7 @@ public class HotWeatherDB {
 
                     values.put("city_name",city.getCityName());
                     values.put("city_code",city.getCityCode());
+                    values.put("province_id",city.getProvinceId());
 
                     db.insert("City",null,values);
 
@@ -132,6 +133,7 @@ public class HotWeatherDB {
                                         city.setId(cursor.getInt(cursor.getColumnIndex("id")));
                                         city.setCityName(cursor.getString(cursor.getColumnIndex("city_name")));
                                         city.setCityCode(cursor.getString(cursor.getColumnIndex("city_code")));
+                                        city.setProvinceId(provinceId);
 
                                         list.add(city);
 
@@ -157,6 +159,7 @@ public class HotWeatherDB {
 
                      values.put("country_name",country.getCountryName());
                      values.put("country_code",country.getCountryCode());
+                     values.put("city_id",country.getCityId());
 
                      db.insert("Country",null,values);
            }
@@ -179,6 +182,7 @@ public class HotWeatherDB {
                                         country.setId(cursor.getInt(cursor.getColumnIndex("id")));
                                         country.setCountryName(cursor.getString(cursor.getColumnIndex("country_name")));
                                         country.setCountryCode(cursor.getString(cursor.getColumnIndex("country_code")));
+                                        country.setCityId(cityId);
 
                                         list.add(country);
                               }while (cursor.moveToNext());
