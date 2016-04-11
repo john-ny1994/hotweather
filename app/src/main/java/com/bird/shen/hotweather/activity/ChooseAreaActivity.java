@@ -2,7 +2,10 @@ package com.bird.shen.hotweather.activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Layout;
 import android.text.TextUtils;
 import android.util.Log;
@@ -72,6 +75,19 @@ public class ChooseAreaActivity extends Activity {
           protected void onCreate(Bundle savedInstanceState) {
                     super.onCreate(savedInstanceState);
 
+               // 从ChooseAreaActivity跳转到WeatherActivity
+              SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+              if (prefs.getBoolean("city_selected",false)){
+
+                  Intent intent = new Intent(this,WeatherActivity.class);
+                  startActivity(intent);
+                  finish();
+                  return;
+              }
+
+              // 获取控件的实例。
+
                     setContentView(R.layout.choose_area);
 
                     listView = (ListView) findViewById(R.id.list_view);
@@ -90,11 +106,18 @@ public class ChooseAreaActivity extends Activity {
                                                   selectedProvince = provinceList.get(position);
                                                   queryCities();
 
-
                                         } else if (currentLevel == LEVEL_CITY) {
 
                                                   selectedCity = cityList.get(position);
                                                   queryCounties();
+                                        }else if (currentLevel == LEVEL_COUNTRY){
+
+                                            String countryCode = countryList.get(position).getCountryCode();
+
+                                            Intent intent = new Intent(ChooseAreaActivity.this,WeatherActivity.class);
+                                            intent.putExtra("country_code",countryCode);
+                                            startActivity(intent);
+                                            finish();
                                         }
                               }
                     });
@@ -102,7 +125,6 @@ public class ChooseAreaActivity extends Activity {
                     // load data of procince;
 
                     queryProvinces();
-
           }
 
           // query the provinces from database ,if don`t have,  query on internet.
