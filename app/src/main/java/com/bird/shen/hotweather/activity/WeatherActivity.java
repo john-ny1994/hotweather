@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bird.shen.hotweather.R;
+import com.bird.shen.hotweather.service.AutoUpdateService;
 import com.bird.shen.hotweather.util.HttpCallbackListener;
 import com.bird.shen.hotweather.util.HttpUtil;
 import com.bird.shen.hotweather.util.Utility;
@@ -223,9 +224,15 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
         temp2Text.setText(prefs.getString("temp1", ""));
         weatherDesText.setText(prefs.getString("weather_descripe", ""));
         publishText.setText("今天" + prefs.getString("publish_time", "") + "发布");
-        currentDateText.setText(prefs.getString("current_date",""));
+        currentDateText.setText(prefs.getString("current_date", ""));
 
         weatherInfoLayout.setVisibility(View.VISIBLE); // 将显示天气信息的这一块布局显示可见
         cityNameText.setVisibility(View.VISIBLE);
+
+        // 在天气刷新的位置，启动服务，然后后台自动更新。
+
+        Intent intent = new Intent(this, AutoUpdateService.class);
+        startService(intent);
+
     }
 }
