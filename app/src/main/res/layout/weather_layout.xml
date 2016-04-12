@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="#aa0000ff">
+
+        <Button
+            android:id="@+id/switch_city"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:background="@drawable/home" />
 
         <TextView
             android:id="@+id/city_text"
@@ -15,7 +23,16 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:textColor="#fff"
-            android:textSize="24sp"/>
+            android:textSize="24sp" />
+
+        <Button
+            android:id="@+id/refresh_weather"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/refresh" />
 
     </RelativeLayout>
 
@@ -33,25 +50,24 @@
             android:layout_marginRight="20dp"
             android:layout_marginTop="10dp"
             android:textColor="#D938FF"
-            android:textSize="18sp"
-            />
-        
+            android:textSize="18sp" />
+
         <LinearLayout
             android:id="@+id/weather_info_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:orientation="vertical"
-            >
+            android:orientation="vertical">
+
             <TextView
                 android:id="@+id/current_date"
                 android:layout_width="wrap_content"
                 android:layout_height="40dp"
+                android:layout_marginBottom="5dp"
                 android:gravity="center"
                 android:textColor="#D938FF"
-                android:textSize="22sp"
-                android:layout_marginBottom="5dp"/>
-            
+                android:textSize="22sp" />
+
             <TextView
                 android:id="@+id/weather_describe"
                 android:layout_width="wrap_content"
@@ -59,7 +75,7 @@
                 android:layout_gravity="center_horizontal"
                 android:gravity="center"
                 android:textColor="#D938FF"
-                android:textSize="40sp"/>
+                android:textSize="40sp" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -73,8 +89,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:textColor="#D938FF"
-                    android:textSize="40sp"
-                    />
+                    android:textSize="40sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -84,19 +99,18 @@
                     android:layout_marginRight="10dp"
                     android:text="~"
                     android:textColor="#D938FF"
-                    android:textSize="40dp"
-                    />
+                    android:textSize="40dp" />
+
                 <TextView
                     android:id="@+id/temp2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:textColor="#D938FF"
-                    android:textSize="40sp"
-                    />
+                    android:textSize="40sp" />
 
             </LinearLayout>
-            
+
         </LinearLayout>
 
     </RelativeLayout>

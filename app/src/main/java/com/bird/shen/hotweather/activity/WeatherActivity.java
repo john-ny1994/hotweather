@@ -1,12 +1,14 @@
 package com.bird.shen.hotweather.activity;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -18,7 +20,7 @@ import com.bird.shen.hotweather.util.Utility;
 /**
  *  Create a class to get the info of weather
  */
-public class WeatherActivity extends Activity {
+public class WeatherActivity extends Activity implements View.OnClickListener{
 
          // 这是布局文件layout/weather_layout.xml 里面的一个子布局
           private LinearLayout weatherInfoLayout;
@@ -40,6 +42,12 @@ public class WeatherActivity extends Activity {
 
      //  显示当前日期
          private TextView currentDateText;
+
+     // 定义按钮用来切换城市。
+         private Button switchCity;
+
+    // 更新天气按钮
+         private  Button refreshWeather;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +84,47 @@ public class WeatherActivity extends Activity {
              showWeather();
 
         }
+
+        switchCity = (Button) findViewById(R.id.switch_city);
+        refreshWeather = (Button) findViewById(R.id.refresh_weather);
+
+        switchCity.setOnClickListener(this);
+        refreshWeather.setOnClickListener(this);
+
+    }
+
+    // 点击事件逻辑部分
+
+     @Override
+     public void onClick(View v) {
+
+        switch (v.getId()){
+
+            case R.id.switch_city:
+
+                Intent intent = new Intent(this,ChooseAreaActivity.class);
+                intent.putExtra("from_weather_activity", true);
+                Log.d("from_weather_activity", " " + intent.getBooleanExtra("from_weather_activity", true));
+                startActivity(intent);
+                finish();
+                break;
+
+            case R.id.refresh_weather:
+
+                publishText.setText("同步中...");
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+                String weatherCode = prefs.getString("weather_code","");
+                if (!TextUtils.isEmpty(weatherCode)){
+
+                    queryWeatherInfo(weatherCode);
+                }
+                break;
+
+            default:
+
+                break;
+        }
+
     }
 
     // 查询县级代号所对应的天气代号
@@ -170,8 +219,8 @@ public class WeatherActivity extends Activity {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         cityNameText.setText(prefs.getString("city_name", ""));
-        temp1Text.setText(prefs.getString("temp1", ""));
-        temp2Text.setText(prefs.getString("temp2", ""));
+        temp1Text.setText(prefs.getString("temp2", ""));
+        temp2Text.setText(prefs.getString("temp1", ""));
         weatherDesText.setText(prefs.getString("weather_descripe", ""));
         publishText.setText("今天" + prefs.getString("publish_time", "") + "发布");
         currentDateText.setText(prefs.getString("current_date",""));

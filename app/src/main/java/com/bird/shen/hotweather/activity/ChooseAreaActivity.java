@@ -33,324 +33,339 @@ import java.util.List;
  */
 public class ChooseAreaActivity extends Activity {
 
-          public static final int LEVEL_PROVINCE = 0;
-          public static final int LEVEL_CITY = 1;
-          public static final int LEVEL_COUNTRY = 2;
+    public static final int LEVEL_PROVINCE = 0;
+    public static final int LEVEL_CITY = 1;
+    public static final int LEVEL_COUNTRY = 2;
 
-          // defined variables
+    // defined variables
 
-          private ProgressDialog progressDialog;
-          private TextView titleText;
-          private ListView listView;
-          private ArrayAdapter<String> adapter;
-          private HotWeatherDB hotWeatherDB;
-          private List<String> dataList = new ArrayList<String>();
+    private ProgressDialog progressDialog;
+    private TextView titleText;
+    private ListView listView;
+    private ArrayAdapter<String> adapter;
+    private HotWeatherDB hotWeatherDB;
+    private List<String> dataList = new ArrayList<String>();
 
-          // the list of province;
+    // the list of province;
 
-          private List<Province> provinceList;
+    private List<Province> provinceList;
 
-          // the list of city;
+    // the list of city;
 
-          private List<City> cityList;
+    private List<City> cityList;
 
-          // the list of country
+    // the list of country
 
-          private List<Country> countryList;
+    private List<Country> countryList;
 
-          // selected province
+    // selected province
 
-          private Province selectedProvince;
+    private Province selectedProvince;
 
-          // selected city
+    // selected city
 
-          private City selectedCity;
+    private City selectedCity;
 
-          // the Level of select
+    // the Level of select
 
-          private int currentLevel;
+    private int currentLevel;
+
+    // 定义一个布尔值是否从WeatherActivity中跳转过来。
+    private boolean isFromWeatherActivity;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        //
+
+        isFromWeatherActivity = getIntent().getBooleanExtra("from_weather_activity", false);
+
+        Log.d("isFromWeatherActivity", "  is " + isFromWeatherActivity);
+
+        // 从ChooseAreaActivity跳转到WeatherActivity
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        // 已经选择了城市，且不是从WeatherActivity跳转过来，才会直接跳转到WeatherActivity
+
+        if (prefs.getBoolean("city_selected", false) && !isFromWeatherActivity) {
+
+            Intent intent = new Intent(this, WeatherActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
+        // 获取控件的实例。
+
+        setContentView(R.layout.choose_area);
+
+        listView = (ListView) findViewById(R.id.list_view);
+        titleText = (TextView) findViewById(R.id.title_text);
+
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, dataList);
+        listView.setAdapter(adapter);
+
+        hotWeatherDB = HotWeatherDB.getInstance(this);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                if (currentLevel == LEVEL_PROVINCE) {
+
+                    selectedProvince = provinceList.get(position);
+                    queryCities();
+
+                } else if (currentLevel == LEVEL_CITY) {
+
+                    selectedCity = cityList.get(position);
+                    queryCounties();
+                } else if (currentLevel == LEVEL_COUNTRY) {
+
+                    String countryCode = countryList.get(position).getCountryCode();
+
+                    Intent intent = new Intent(ChooseAreaActivity.this, WeatherActivity.class);
+                    intent.putExtra("country_code", countryCode);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+        });
+
+        // load data of procince;
+
+        queryProvinces();
+    }
+
+    // query the provinces from database ,if don`t have,  query on internet.
+
+    private void queryProvinces() {
+
+        provinceList = hotWeatherDB.loadProvinces();
+
+        if (provinceList.size() > 0) {
+            dataList.clear();
+
+            for (Province province : provinceList) {
+
+                dataList.add(province.getProvinceName());
+
+            }
+
+            adapter.notifyDataSetChanged();
+            listView.setSelection(0);
+            titleText.setText("中国");
+
+            currentLevel = LEVEL_PROVINCE;
+
+        } else {
+            // query on internet.
+
+            queryFromServer(null, "province");
+
+        }
 
 
-          @Override
-          protected void onCreate(Bundle savedInstanceState) {
-                    super.onCreate(savedInstanceState);
+    }
 
-               // 从ChooseAreaActivity跳转到WeatherActivity
-              SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    // query the city from database ,if don`t have,  query on internet.
 
-              if (prefs.getBoolean("city_selected",false)){
+    private void queryCities() {
 
-                  Intent intent = new Intent(this,WeatherActivity.class);
-                  startActivity(intent);
-                  finish();
-                  return;
-              }
+        cityList = hotWeatherDB.loadcities(selectedProvince.getId());
 
-              // 获取控件的实例。
+        if (cityList.size() > 0) {
 
-                    setContentView(R.layout.choose_area);
+            dataList.clear();
 
-                    listView = (ListView) findViewById(R.id.list_view);
-                    titleText = (TextView) findViewById(R.id.title_text);
+            for (City city : cityList) {
+                dataList.add(city.getCityName());
 
-                    adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, dataList);
-                    listView.setAdapter(adapter);
+            }
 
-                    hotWeatherDB = HotWeatherDB.getInstance(this);
-                    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                              @Override
-                              public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            adapter.notifyDataSetChanged();
+            listView.setSelection(0);
+            titleText.setText(selectedProvince.getProvinceName());
 
-                                        if (currentLevel == LEVEL_PROVINCE) {
+            currentLevel = LEVEL_CITY;
+        } else {
 
-                                                  selectedProvince = provinceList.get(position);
-                                                  queryCities();
+            // query on internet.
 
-                                        } else if (currentLevel == LEVEL_CITY) {
+            queryFromServer(selectedProvince.getProvincecode(), "city");
 
-                                                  selectedCity = cityList.get(position);
-                                                  queryCounties();
-                                        }else if (currentLevel == LEVEL_COUNTRY){
+            Log.d("ccccc", selectedProvince.getProvincecode());
+        }
 
-                                            String countryCode = countryList.get(position).getCountryCode();
+    }
 
-                                            Intent intent = new Intent(ChooseAreaActivity.this,WeatherActivity.class);
-                                            intent.putExtra("country_code",countryCode);
-                                            startActivity(intent);
-                                            finish();
-                                        }
-                              }
+    // query the country from database ,if don`t have,  query on internet.
+
+    private void queryCounties() {
+
+        countryList = hotWeatherDB.loadCountries(selectedCity.getId());
+
+        if (countryList.size() > 0) {
+            dataList.clear();
+
+            for (Country country : countryList) {
+
+                dataList.add(country.getCountryName());
+
+            }
+
+            adapter.notifyDataSetChanged();
+            listView.setSelection(0);
+            titleText.setText(selectedCity.getCityName());
+            currentLevel = LEVEL_COUNTRY;
+
+        } else {
+
+            // query on internet.
+
+            queryFromServer(selectedCity.getCityCode(), "country");
+
+        }
+    }
+
+    //  According to the code and type of the incoming query data from the server
+
+    private void queryFromServer(final String code, final String type) {
+
+        String address;
+
+        if (!TextUtils.isEmpty(code)) {
+
+            address = "http://www.weather.com.cn/data/list3/city" + code + ".xml";
+
+        } else {
+
+            address = "http://www.weather.com.cn/data/list3/city.xml";
+        }
+
+        // show speed of progress
+
+        showProgressDialog();
+
+        HttpUtil.sendHttpRequest(address, new HttpCallbackListener() {
+
+            @Override
+            public void onFinish(String response) {
+
+                boolean result = false;
+
+                if ("province".equals(type)) {
+
+                    result = Utility.handlePrivinceResponse(hotWeatherDB, response);
+
+                } else if ("city".equals(type)) {
+
+                    Log.d("jjjjj", response + "   " + selectedProvince.getId());
+
+                    result = Utility.handleCityResponse(hotWeatherDB, response, selectedProvince.getId());
+
+                } else if ("country".equals(type)) {
+
+                    result = Utility.handleCountryResponse(hotWeatherDB, response, selectedCity.getId());
+
+                }
+
+                if (result) {
+                    // 通过 runOnUiThread（）方法回到主线程处理逻辑
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // 关闭进度对话框
+                            closeProgressDialog();
+
+                            if ("province".equals(type)) {
+
+                                queryProvinces();
+                            } else if ("city".equals(type)) {
+
+                                queryCities();
+                            } else if ("country".equals(type)) {
+
+                                queryCounties();
+                            }
+                        }
                     });
+                }
+            }
 
-                    // load data of procince;
+            @Override
+            public void onError(Exception e) {
 
-                    queryProvinces();
-          }
+                // 通过 runOnUiThread（）方法回到主线程处理逻辑
 
-          // query the provinces from database ,if don`t have,  query on internet.
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
 
-          private void queryProvinces() {
+                        // 关闭进度对话框
 
-                    provinceList = hotWeatherDB.loadProvinces();
+                        closeProgressDialog();
 
-                    if (provinceList.size() > 0) {
-                              dataList.clear();
-
-                              for (Province province : provinceList) {
-
-                                        dataList.add(province.getProvinceName());
-
-                              }
-
-                              adapter.notifyDataSetChanged();
-                              listView.setSelection(0);
-                              titleText.setText("中国");
-
-                              currentLevel = LEVEL_PROVINCE;
-
-                    } else {
-                              // query on internet.
-
-                             queryFromServer(null, "province");
-
+                        Toast.makeText(ChooseAreaActivity.this, "加载失败", Toast.LENGTH_SHORT).show();
                     }
+                });
 
 
-          }
+            }
+        });
 
-          // query the city from database ,if don`t have,  query on internet.
+    }
 
-          private void queryCities() {
+    // 显示进度对话框
 
-                    cityList = hotWeatherDB.loadcities(selectedProvince.getId());
+    private void showProgressDialog() {
 
-                    if (cityList.size() > 0) {
+        if (progressDialog == null) {
 
-                              dataList.clear();
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setMessage("正在加载...");
+            progressDialog.setCanceledOnTouchOutside(false); // 设置对话框不可点击取消
 
-                              for (City city : cityList) {
-                                        dataList.add(city.getCityName());
+        }
 
-                              }
+        progressDialog.show();
 
-                              adapter.notifyDataSetChanged();
-                              listView.setSelection(0);
-                              titleText.setText(selectedProvince.getProvinceName());
+    }
 
-                              currentLevel = LEVEL_CITY;
-                    } else {
+    // 关闭进度条
 
-                              // query on internet.
+    private void closeProgressDialog() {
 
-                            queryFromServer(selectedProvince.getProvincecode(),"city");
+        if (progressDialog != null) {
 
-                              Log.d("ccccc", selectedProvince.getProvincecode());
-                    }
+            progressDialog.dismiss();
+        }
 
-          }
+    }
 
-          // query the country from database ,if don`t have,  query on internet.
+    // 捕获 back 按键，根据当前的级别来判断，此时应该返回市列表、省列表，还是退出
 
-          private void queryCounties() {
+    @Override
+    public void onBackPressed() {
 
-                    countryList = hotWeatherDB.loadCountries(selectedCity.getId());
+        if (currentLevel == LEVEL_COUNTRY) {
 
-                    if (countryList.size() > 0) {
-                              dataList.clear();
+            queryCities();
 
-                              for (Country country : countryList) {
+        } else if (currentLevel == LEVEL_CITY) {
 
-                                        dataList.add(country.getCountryName());
+            queryProvinces();
+        } else {
 
-                              }
+            if (isFromWeatherActivity) {
 
-                              adapter.notifyDataSetChanged();
-                              listView.setSelection(0);
-                              titleText.setText(selectedCity.getCityName());
-                              currentLevel = LEVEL_COUNTRY;
-
-                    } else {
-
-                              // query on internet.
-
-                           queryFromServer(selectedCity.getCityCode(),"country");
-
-                    }
-          }
-
-          //  According to the code and type of the incoming query data from the server
-
-          private void queryFromServer(final String code, final String type) {
-
-                    String address;
-
-                    if (!TextUtils.isEmpty(code)) {
-
-                              address = "http://www.weather.com.cn/data/list3/city" + code + ".xml";
-
-                    } else {
-
-                              address = "http://www.weather.com.cn/data/list3/city.xml";
-                    }
-
-                    // show speed of progress
-
-                    showProgressDialog();
-
-                    HttpUtil.sendHttpRequest(address, new HttpCallbackListener() {
-
-                              @Override
-                              public void onFinish(String response) {
-
-                               boolean result = false;
-
-                                        if ("province".equals(type)){
-
-                                                  result = Utility.handlePrivinceResponse(hotWeatherDB,response);
-
-                                        }else if ("city".equals(type)){
-
-                                                  Log.d("jjjjj",response +"   "+ selectedProvince.getId());
-
-                                                  result = Utility.handleCityResponse(hotWeatherDB,response,selectedProvince.getId());
-
-                                        }else if ("country".equals(type)){
-
-                                                  result = Utility.handleCountryResponse(hotWeatherDB,response,selectedCity.getId());
-
-                                        }
-
-                                        if (result){
-                                                  // 通过 runOnUiThread（）方法回到主线程处理逻辑
-
-                                                  runOnUiThread(new Runnable() {
-                                                            @Override
-                                                            public void run() {
-                                                                      // 关闭进度对话框
-                                                                      closeProgressDialog();
-
-                                                                      if ("province".equals(type)){
-
-                                                                            queryProvinces();
-                                                                      }else  if ("city".equals(type)){
-
-                                                                                queryCities();
-                                                                      }else if ("country".equals(type)){
-
-                                                                                queryCounties();
-                                                                      }
-                                                            }
-                                                  });
-                                        }
-                              }
-
-                              @Override
-                              public void onError(Exception e) {
-
-                                        // 通过 runOnUiThread（）方法回到主线程处理逻辑
-
-                                        runOnUiThread(new Runnable() {
-                                                  @Override
-                                                  public void run() {
-
-                                                     // 关闭进度对话框
-
-                                                            closeProgressDialog();
-
-                                                            Toast.makeText(ChooseAreaActivity.this,"加载失败",Toast.LENGTH_SHORT).show();
-                                                  }
-                                        });
-
-
-                              }
-                    });
-
-          }
-
-          // 显示进度对话框
-
-          private  void showProgressDialog(){
-
-                    if (progressDialog == null){
-
-                              progressDialog = new ProgressDialog(this);
-                              progressDialog.setMessage("正在加载...");
-                              progressDialog.setCanceledOnTouchOutside(false); // 设置对话框不可点击取消
-
-                    }
-
-                    progressDialog.show();
-
-          }
-
-          // 关闭进度条
-
-          private  void closeProgressDialog(){
-
-                    if (progressDialog != null){
-
-                              progressDialog.dismiss();
-                    }
-
-          }
-
-          // 捕获 back 按键，根据当前的级别来判断，此时应该返回市列表、省列表，还是退出
-
-          @Override
-          public void onBackPressed() {
-
-                    if (currentLevel == LEVEL_COUNTRY){
-
-                              queryCities();
-
-                    }else if (currentLevel == LEVEL_CITY){
-
-                              queryProvinces();
-                    }else {
-
-                              finish();
-                    }
-          }
+                Intent intent = new Intent(this, WeatherActivity.class);
+                startActivity(intent);
+            }
+            finish();
+        }
+    }
 }
 
 
