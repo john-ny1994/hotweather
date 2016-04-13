@@ -25,6 +25,8 @@ import com.bird.shen.hotweather.util.HttpCallbackListener;
 import com.bird.shen.hotweather.util.HttpUtil;
 import com.bird.shen.hotweather.util.Utility;
 
+import net.youmi.android.AdManager;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,6 +78,8 @@ public class ChooseAreaActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        AdManager.getInstance(this).init("181ce84f8eb2a1c3","f2c7fe81f5dd2723",false);
 
         //
 

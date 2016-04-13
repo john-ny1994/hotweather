@@ -18,6 +18,9 @@ import com.bird.shen.hotweather.util.HttpCallbackListener;
 import com.bird.shen.hotweather.util.HttpUtil;
 import com.bird.shen.hotweather.util.Utility;
 
+import net.youmi.android.banner.AdSize;
+import net.youmi.android.banner.AdView;
+
 /**
  *  Create a class to get the info of weather
  */
@@ -91,6 +94,15 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
 
         switchCity.setOnClickListener(this);
         refreshWeather.setOnClickListener(this);
+
+        // 实例化广告条
+        AdView adView = new AdView(this, AdSize.FIT_SCREEN);
+
+        // 获取嵌入条布局
+        LinearLayout adLayout = (LinearLayout) findViewById(R.id.adLayout);
+
+        // 将广告加入布局
+        adLayout.addView(adView);
 
     }
 
