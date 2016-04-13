@@ -2,12 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_weather"
     android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="#aa0000ff">
+        android:background="#55000000"
+       >
 
         <Button
             android:id="@+id/switch_city"
@@ -40,7 +42,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="#5500ff00">
+        >
 
         <TextView
             android:id="@+id/publish_time_text"
@@ -49,7 +51,8 @@
             android:layout_alignParentRight="true"
             android:layout_marginRight="20dp"
             android:layout_marginTop="10dp"
-            android:textColor="#D938FF"
+            android:textStyle="italic"
+            android:textColor="#ABFF5D"
             android:textSize="18sp" />
 
         <LinearLayout
@@ -65,7 +68,8 @@
                 android:layout_height="40dp"
                 android:layout_marginBottom="5dp"
                 android:gravity="center"
-                android:textColor="#D938FF"
+                android:textColor="#ABFF5D"
+                android:textStyle="italic"
                 android:textSize="22sp" />
 
             <TextView
@@ -74,7 +78,7 @@
                 android:layout_height="60dp"
                 android:layout_gravity="center_horizontal"
                 android:gravity="center"
-                android:textColor="#D938FF"
+                android:textColor="#ABFF5D"
                 android:textSize="40sp" />
 
             <LinearLayout
@@ -88,7 +92,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:textColor="#D938FF"
+                    android:textStyle="italic"
+                    android:textColor="#ABFF5D"
                     android:textSize="40sp" />
 
                 <TextView
@@ -98,7 +103,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
                     android:text="~"
-                    android:textColor="#D938FF"
+                    android:textColor="#ABFF5D"
                     android:textSize="40dp" />
 
                 <TextView
@@ -106,7 +111,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:textColor="#D938FF"
+                    android:textStyle="italic"
+                    android:textColor="#ABFF5D"
                     android:textSize="40sp" />
 
             </LinearLayout>
